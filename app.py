@@ -2,7 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 import preprocessor, helper
-
+import pandas as pd
 
 def generate_gradient_colors(num_colors):
     cmap = plt.get_cmap('viridis')
@@ -16,6 +16,8 @@ if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
     df = preprocessor.preprocess(data)
+    df = helper.sentiment_analysis(df)
+
 
 
     user_list = df["user"].unique().tolist()
@@ -132,3 +134,42 @@ if uploaded_file is not None:
         ax.pie(emoji_df['count'].head(), labels=emoji_df['emoji'].head(), autopct="%0.2f")
         st.pyplot(fig)
 
+
+    st.title("Sentiment Analysis")
+    sentiment_counts = df['sentiment_category'].value_counts()
+    fig, ax = plt.subplots()
+    ax.bar(sentiment_counts.index, sentiment_counts.values, color='blue')
+    plt.xlabel('Sentiment')
+    plt.ylabel('Frequency')
+    plt.title('Sentiment Distribution')
+    st.pyplot(fig)
+
+
+    st.title("Message Volume Forecast")
+    historical_data, forecast_df = helper.forecast_trends(df)
+
+    
+    all_dates = historical_data.index.union(forecast_df['date'])
+    combined_data = pd.DataFrame(index=all_dates)
+    combined_data['Historical'] = historical_data
+    combined_data['Forecast'] = forecast_df.set_index('date')['forecast']
+    col1, col2 = st.columns(2)
+    with col1:
+        fig, ax = plt.subplots()
+        combined_data['Historical'].plot(ax=ax, label='Historical Data', color='blue')
+        plt.xlabel('Date')
+        plt.ylabel('Message Count')
+        plt.title('Historical Message Volume')
+        plt.legend()
+        plt.xticks(rotation='vertical')
+        st.pyplot(fig)
+
+    with col2:
+        fig, ax = plt.subplots()
+        combined_data['Forecast'].plot(ax=ax, label='Forecast', color='red')
+        plt.xlabel('Date')
+        plt.ylabel('Message Count')
+        plt.title('Message Volume Forecast')
+        plt.legend()
+        plt.xticks(rotation='vertical')
+        st.pyplot(fig)

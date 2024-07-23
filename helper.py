@@ -3,6 +3,11 @@ from wordcloud import WordCloud
 import emoji
 import pandas as pd
 from collections import Counter
+from textblob import TextBlob
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+
 
 extractor = URLExtract()
 
@@ -137,3 +142,45 @@ def activity_heatmap(selected_user,df):
     user_heatmap = df.pivot_table(index='day_name', columns='period', values='message', aggfunc='count').fillna(0)
 
     return user_heatmap
+
+def sentiment_analysis(df):
+    def get_sentiment(text):
+        analysis = TextBlob(text)
+        return analysis.sentiment.polarity
+
+    df['sentiment'] = df['message'].apply(get_sentiment)
+    
+    def categorize_sentiment(score):
+        if score > 0.1:
+            return 'Positive'
+        elif score < -0.1:
+            return 'Negative'
+        else:
+            return 'Neutral'
+
+    df['sentiment_category'] = df['sentiment'].apply(categorize_sentiment)
+    return df
+
+def forecast_trends(df):
+    df['date'] = pd.to_datetime(df['date'])
+    df.set_index('date', inplace=True)
+    
+    daily_data = df.resample('D').size()
+
+    X = np.arange(len(daily_data)).reshape(-1, 1)
+    y = daily_data.values
+    
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    future_dates = pd.date_range(start=daily_data.index[-1] + pd.Timedelta(days=1), periods=30)
+    future_X = np.arange(len(daily_data), len(daily_data) + 30).reshape(-1, 1)
+    future_y = model.predict(future_X)
+    
+    forecast_df = pd.DataFrame({'date': future_dates, 'forecast': future_y})
+    
+    end_date = daily_data.index[-1]
+    start_date = end_date - pd.DateOffset(months=6)
+    historical_subset = daily_data[start_date:end_date]
+    
+    return historical_subset, forecast_df

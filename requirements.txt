@@ -6,3 +6,5 @@ wordcloud
 pandas
 emoji
 gunicorn
+TextBlob
+Scikit-learn
