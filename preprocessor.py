@@ -3,16 +3,16 @@ import pandas as pd
 
 def preprocess(data):
     # Define patterns for 24-hour and 12-hour time formats
-    pattern_24h = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{2}\s-\s'
-    pattern_12h = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{2}\s[APMapm]{2}\s-\s'
+    pattern_24h = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{2}:\d{2}\s-\s'
+    pattern_12h = r'\d{1,2}/\d{1,2}/\d{2},\s\d{1,2}:\d{2}:\d{2}\s[APMapm]{2}\s-\s'
 
     # Check which pattern is present in the data
     if re.search(pattern_24h, data):
         pattern = pattern_24h
-        date_format = '%d/%m/%y, %H:%M - '
+        date_format = '%d/%m/%y, %H:%M:%S - '
     elif re.search(pattern_12h, data):
         pattern = pattern_12h
-        date_format = '%d/%m/%y, %I:%M %p - '
+        date_format = '%d/%m/%y, %I:%M:%S %p - '
     else:
         raise ValueError("Date format not recognized. Please provide data with 12-hour or 24-hour time format.")
 
