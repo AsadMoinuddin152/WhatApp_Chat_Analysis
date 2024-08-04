@@ -110,68 +110,68 @@ if uploaded_file is not None:
                 st.dataframe(new_df)
 
 
-    st.title("Word Cloud")
-    df_wc = helper.create_word_cloud(selected_user, df)
-    fig, ax = plt.subplots()
-    plt.imshow(df_wc)
-    st.pyplot(fig)
-
-    most_common_df = helper.most_common_words(selected_user, df)
-    fig, ax = plt.subplots()
-
-    ax.barh(most_common_df[0], most_common_df[1])
-    plt.xticks(rotation="vertical")
-
-    st.title("Most Common Words")
-    st.pyplot(fig)
-
-    # emoji analysis
-    emoji_df = helper.emoji_helper(selected_user, df)
-    st.title("Emoji Analysis")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.dataframe(emoji_df)
-    with col2:
+        st.title("Word Cloud")
+        df_wc = helper.create_word_cloud(selected_user, df)
         fig, ax = plt.subplots()
-        ax.pie(emoji_df['count'].head(), labels=emoji_df['emoji'].head(), autopct="%0.2f")
+        plt.imshow(df_wc)
+        st.pyplot(fig)
+
+        most_common_df = helper.most_common_words(selected_user, df)
+        fig, ax = plt.subplots()
+
+        ax.barh(most_common_df[0], most_common_df[1])
+        plt.xticks(rotation="vertical")
+
+        st.title("Most Common Words")
+        st.pyplot(fig)
+
+        # emoji analysis
+        emoji_df = helper.emoji_helper(selected_user, df)
+        st.title("Emoji Analysis")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.dataframe(emoji_df)
+        with col2:
+            fig, ax = plt.subplots()
+            ax.pie(emoji_df['count'].head(), labels=emoji_df['emoji'].head(), autopct="%0.2f")
+            st.pyplot(fig)
+
+
+        st.title("Sentiment Analysis")
+        sentiment_counts = df['sentiment_category'].value_counts()
+        fig, ax = plt.subplots()
+        ax.bar(sentiment_counts.index, sentiment_counts.values, color='blue')
+        plt.xlabel('Sentiment')
+        plt.ylabel('Frequency')
+        plt.title('Sentiment Distribution')
         st.pyplot(fig)
 
 
-    st.title("Sentiment Analysis")
-    sentiment_counts = df['sentiment_category'].value_counts()
-    fig, ax = plt.subplots()
-    ax.bar(sentiment_counts.index, sentiment_counts.values, color='blue')
-    plt.xlabel('Sentiment')
-    plt.ylabel('Frequency')
-    plt.title('Sentiment Distribution')
-    st.pyplot(fig)
-
-
-    st.title("Message Volume Forecast")
-    historical_data, forecast_df = helper.forecast_trends(df)
+        st.title("Message Volume Forecast")
+        historical_data, forecast_df = helper.forecast_trends(df)
 
     
-    all_dates = historical_data.index.union(forecast_df['date'])
-    combined_data = pd.DataFrame(index=all_dates)
-    combined_data['Historical'] = historical_data
-    combined_data['Forecast'] = forecast_df.set_index('date')['forecast']
-    col1, col2 = st.columns(2)
-    with col1:
-        fig, ax = plt.subplots()
-        combined_data['Historical'].plot(ax=ax, label='Historical Data', color='blue')
-        plt.xlabel('Date')
-        plt.ylabel('Message Count')
-        plt.title('Historical Message Volume')
-        plt.legend()
-        plt.xticks(rotation='vertical')
-        st.pyplot(fig)
+        all_dates = historical_data.index.union(forecast_df['date'])
+        combined_data = pd.DataFrame(index=all_dates)
+        combined_data['Historical'] = historical_data
+        combined_data['Forecast'] = forecast_df.set_index('date')['forecast']
+        col1, col2 = st.columns(2)
+        with col1:
+            fig, ax = plt.subplots()
+            combined_data['Historical'].plot(ax=ax, label='Historical Data', color='blue')
+            plt.xlabel('Date')
+            plt.ylabel('Message Count')
+            plt.title('Historical Message Volume')
+            plt.legend()
+            plt.xticks(rotation='vertical')
+            st.pyplot(fig)
 
-    with col2:
-        fig, ax = plt.subplots()
-        combined_data['Forecast'].plot(ax=ax, label='Forecast', color='red')
-        plt.xlabel('Date')
-        plt.ylabel('Message Count')
-        plt.title('Message Volume Forecast')
-        plt.legend()
-        plt.xticks(rotation='vertical')
-        st.pyplot(fig)
+        with col2:
+            fig, ax = plt.subplots()
+            combined_data['Forecast'].plot(ax=ax, label='Forecast', color='red')
+            plt.xlabel('Date')
+            plt.ylabel('Message Count')
+            plt.title('Message Volume Forecast')
+            plt.legend()
+            plt.xticks(rotation='vertical')
+            st.pyplot(fig)
